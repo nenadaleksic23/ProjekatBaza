@@ -54,7 +54,7 @@ namespace WebApplication1.Models.Base
             return ExecuteNonParametrizedQuery(query);
         }
 
-        public  List<T> ReadFromDatabase(string query)
+        public List<T> ReadFromDatabase(string query)
         {
             var json = ConvertDataTabletoJsonString(query);
             return JsonConvert.DeserializeObject<List<T>>(json);
@@ -139,7 +139,14 @@ namespace WebApplication1.Models.Base
             foreach (var item in nonPrimaryProps)
             {
                 var value = typeof(T).GetProperty(item.Name).GetValue(entity as T).ToString();
-                result += $"'{value}',";
+                if (value != null)
+                {
+                    result += $"'{value}',";
+                }
+                else
+                {
+                    result += "null,";
+                }
             }
             result = result.Remove(result.Length - 1, 1);
             result += ")";
