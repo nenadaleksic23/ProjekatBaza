@@ -12,8 +12,29 @@ namespace WebApplication1.Controllers
     {
         public ActionResult Index()
         {
-            Repository<Banka> repo = new Repository<Banka>();
+            Repository<Dobavljac> repo = new Repository<Dobavljac>();
+            Repository<Banka> bankRepo = new Repository<Banka>();
+
             var list = repo.Read();
+            bool isCompleted = repo.Insert(new Dobavljac()
+            {
+                Adresa = "Ljubicicina",
+                Naziv = "Babasera",
+                Telefon = "011-123123123"
+            });
+
+            bool isCompleted2 = repo.Update(new Dobavljac()
+            {
+                IDDobaljac = 1,
+                Adresa = "Mirijevska",
+                Naziv = "Babasera jos veca",
+                Telefon = "011-123123123"
+            });
+
+            bool isCompleted3 = repo.Delete(2);
+
+            Dobavljac obj = repo.ReadById(3);
+            obj.Banke = bankRepo.Read();
 
             return View();
         }

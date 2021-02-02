@@ -27,31 +27,56 @@ namespace WebApplication1.Models.Base
         }
         public virtual List<T> Read()
         {
+            string query = $"SELECT * FROM dbo.{_entityName}";
+            return ReadFromDatabase(query);
+        }
+        public virtual T ReadById(int entityId)
+        {
+            string query = $"SELECT * FROM dbo.{_entityName} where {_primaryKeyName} = {entityId}";
+            return ReadFromDatabase(query)?.FirstOrDefault();
+        }
+
+        public virtual bool Update(T entity)
+        {
+            var query = GenerateUpdateQuery(entity);
+            return ExecuteNonParametrizedQuery(query);
+        }
+
+        public virtual bool Insert(T entity)
+        {
+            var query = GenerateInsertQuery(entity);
+            return ExecuteNonParametrizedQuery(query);
+
+        }
+        public virtual bool Delete(int primaryKeyId)
+        {
+            string query = $"DELETE FROM dbo.{_entityName} WHERE {_primaryKeyName} = {primaryKeyId}";
+            return ExecuteNonParametrizedQuery(query);
+        }
+
+        public  List<T> ReadFromDatabase(string query)
+        {
+            var json = ConvertDataTabletoJsonString(query);
+            return JsonConvert.DeserializeObject<List<T>>(json);
+        }
+
+        protected bool ExecuteNonParametrizedQuery(string query)
+        {
             try
             {
-                string query = $"SELECT * FROM dbo.{_entityName}";
-                var json = ConvertDataTabletoString(query);
-                
-                var val = JsonConvert.DeserializeObject<List<T>>(json);
-                return val;
+                using (var sc = new SqlConnection(_connectionString))
+                using (var cmd = sc.CreateCommand())
+                {
+                    sc.Open();
+                    cmd.CommandText = query;
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-
             }
-            return null;
-        }
-        public virtual void Update(T entity)
-        {
-
-        }
-        public virtual void Insert(T entity)
-        {
-
-        }
-        public virtual void Delete(T entity)
-        {
-
+            return false;
         }
 
         private void LoadEntityEssentials()
@@ -72,7 +97,7 @@ namespace WebApplication1.Models.Base
             }
 
         }
-        private string ConvertDataTabletoString(string query)
+        private string ConvertDataTabletoJsonString(string query)
         {
             DataTable dt = new DataTable();
             using (SqlConnection con = new SqlConnection(_connectionString))
@@ -97,6 +122,53 @@ namespace WebApplication1.Models.Base
                     return serializer.Serialize(rows);
                 }
             }
+        }
+        private string GenerateInsertQuery(T entity)
+        {
+            string result = $"Insert into {_entityName}(";
+            var nonPrimaryProps = _properties.Where(m => m.Name != _primaryKeyName);
+
+            foreach (var item in nonPrimaryProps)
+            {
+                result += $"[{item.Name}],";
+            }
+
+            result = result.Remove(result.Length - 1, 1);
+            result += ") values (";
+
+            foreach (var item in nonPrimaryProps)
+            {
+                var value = typeof(T).GetProperty(item.Name).GetValue(entity as T).ToString();
+                result += $"'{value}',";
+            }
+            result = result.Remove(result.Length - 1, 1);
+            result += ")";
+
+            return result;
+        }
+        private string GenerateUpdateQuery(T entity)
+        {
+            string query = $"UPDATE dbo.{_entityName} SET ";
+            var nonPrimaryProps = _properties.Where(m => m.Name != _primaryKeyName);
+
+            foreach (var item in nonPrimaryProps)
+            {
+                var value = typeof(T).GetProperty(item.Name).GetValue(entity);
+                if (value != null)
+                {
+                    query += $"{item.Name} = '{value}'";
+                }
+                else
+                {
+                    query += $"{item.Name} = null";
+                }
+                query += ",";
+            }
+            query = query.Remove(query.Length - 1, 1);
+
+            var primaryKeyValue = typeof(T).GetProperty(_primaryKeyName).GetValue(entity);
+            query += $"WHERE {_primaryKeyName} = '{primaryKeyValue}'";
+            return query;
         }
     }
 }

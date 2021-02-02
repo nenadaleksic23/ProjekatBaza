@@ -11,5 +11,6 @@ namespace WebApplication1.Models.Entities
         [PrimaryKey]
         public int BankaId { get; set; }
         public string Naziv { get; set; }
+        public int Broj { get; set; }
     }
 }

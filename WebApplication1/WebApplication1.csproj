@@ -126,7 +126,9 @@
     </Compile>
     <Compile Include="Models\Base\Entity.cs" />
     <Compile Include="Models\Base\Repository.cs" />
+    <Compile Include="Models\Base\ViewRepository.cs" />
     <Compile Include="Models\Entities\Banka.cs" />
+    <Compile Include="Models\Entities\Dobavljac.cs" />
     <Compile Include="Models\PrimaryKey.cs" />
     <Compile Include="Models\Repo\CustomerRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
