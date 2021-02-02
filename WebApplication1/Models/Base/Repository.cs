@@ -106,8 +106,7 @@ namespace WebApplication1.Models.Base
                 {
                     con.Open();
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    da.Fill(dt);
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    da.Fill(dt);                   
                     List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
                     Dictionary<string, object> row;
                     foreach (DataRow dr in dt.Rows)
@@ -119,7 +118,7 @@ namespace WebApplication1.Models.Base
                         }
                         rows.Add(row);
                     }
-                    return serializer.Serialize(rows);
+                    return JsonConvert.SerializeObject(rows);
                 }
             }
         }

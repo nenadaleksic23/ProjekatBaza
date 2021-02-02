@@ -13,9 +13,9 @@ namespace WebApplication1.Models.Entities
         public int IDDobaljac { get; set; }
         public string Naziv { get; set; }
         public string Adresa { get; set; }
-        public int BankaId { get; set; }
+        //public int BankaId { get; set; }
         public string Telefon { get; set; }
-        public List<Banka> Banke { get; set; }
+        //public List<Banka> Banke { get; set; }
     }
 
     public class Response 

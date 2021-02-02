@@ -34,7 +34,7 @@ namespace WebApplication1.Controllers
             bool isCompleted3 = repo.Delete(2);
 
             Dobavljac obj = repo.ReadById(3);
-            obj.Banke = bankRepo.Read();
+            //obj.Banke = bankRepo.Read();
 
             return View();
         }
